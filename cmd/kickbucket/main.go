@@ -51,42 +51,17 @@ func runScan(args []string) error {
 		printUsage(os.Stdout)
 		return nil
 	}
-	if strings.HasPrefix(args[0], "-") {
-		return fmt.Errorf("keyword is required")
-	}
-	keyword := args[0]
-	wordlistPath := "wordlists/default.txt"
-	providerList := "s3,gcs,azure"
-	jsonOutput := false
-	for i := 1; i < len(args); i++ {
-		switch args[i] {
-		case "--json":
-			jsonOutput = true
-		case "--wordlist", "--providers":
-			if i+1 >= len(args) {
-				return fmt.Errorf("%s requires a value", args[i])
-			}
-			i++
-			if args[i-1] == "--wordlist" {
-				wordlistPath = args[i]
-			} else {
-				providerList = args[i]
-			}
-		default:
-			return fmt.Errorf("unknown flag %q", args[i])
-		}
+	options, err := parseScanArgs(args)
+	if err != nil {
+		return err
 	}
 
-	words, err := readWordlist(wordlistPath)
+	words, err := readWordlist(options.wordlistPath)
 	if err != nil {
 		return err
 	}
 	wanted := make(map[string]bool)
-	for _, name := range strings.Split(providerList, ",") {
-		name = strings.ToLower(strings.TrimSpace(name))
-		if name != "s3" && name != "gcs" && name != "azure" {
-			return fmt.Errorf("unknown provider %q", name)
-		}
+	for _, name := range options.providers {
 		wanted[name] = true
 	}
 
@@ -98,14 +73,14 @@ func runScan(args []string) error {
 			continue
 		}
 		limiter := engine.NewLimiter(10)
-		providerResults, scanErr := engine.Scan(context.Background(), provider, provider.Candidates(keyword, words), 8, limiter)
+		providerResults, scanErr := engine.Scan(context.Background(), provider, provider.Candidates(options.keyword, words), 8, limiter)
 		limiter.Stop()
 		if scanErr != nil {
 			return scanErr
 		}
 		results = append(results, providerResults...)
 	}
-	if jsonOutput {
+	if options.json {
 		return json.NewEncoder(os.Stdout).Encode(results)
 	}
 	for _, result := range results {
@@ -117,6 +92,50 @@ func runScan(args []string) error {
 	}
 	fmt.Printf("%d buckets found, %d exposed\n", len(results), countExposed(results))
 	return nil
+}
+
+type scanOptions struct {
+	keyword      string
+	wordlistPath string
+	providers    []string
+	json         bool
+}
+
+func parseScanArgs(args []string) (scanOptions, error) {
+	if len(args) == 0 || strings.HasPrefix(args[0], "-") {
+		return scanOptions{}, fmt.Errorf("keyword is required")
+	}
+	options := scanOptions{keyword: args[0], wordlistPath: "wordlists/default.txt", providers: []string{"s3", "gcs", "azure"}}
+	providerList := ""
+	for i := 1; i < len(args); i++ {
+		switch args[i] {
+		case "--json":
+			options.json = true
+		case "--wordlist", "--providers":
+			if i+1 >= len(args) {
+				return scanOptions{}, fmt.Errorf("%s requires a value", args[i])
+			}
+			i++
+			if args[i-1] == "--wordlist" {
+				options.wordlistPath = args[i]
+			} else {
+				providerList = args[i]
+			}
+		default:
+			return scanOptions{}, fmt.Errorf("unknown flag %q", args[i])
+		}
+	}
+	if providerList != "" {
+		options.providers = nil
+		for _, name := range strings.Split(providerList, ",") {
+			name = strings.ToLower(strings.TrimSpace(name))
+			if name != "s3" && name != "gcs" && name != "azure" {
+				return scanOptions{}, fmt.Errorf("unknown provider %q", name)
+			}
+			options.providers = append(options.providers, name)
+		}
+	}
+	return options, nil
 }
 
 func readWordlist(path string) ([]string, error) {
