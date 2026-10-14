@@ -4,7 +4,7 @@ labels: [bug]
 body:
   - type: input
     id: version
-    attributes: { label: BucketMap version (bucketmap --version) }
+    attributes: { label: Kickbucket version (kickbucket --version) }
     validations: { required: true }
   - type: input
     id: os

@@ -14,9 +14,9 @@ var (
 
 func main() {
 	if len(os.Args) > 1 && os.Args[1] == "--version" {
-		fmt.Printf("bucketmap %s (%s, %s)\n", version, commit, date)
+		fmt.Printf("kickbucket %s (%s, %s)\n", version, commit, date)
 		return
 	}
-	fmt.Fprintln(os.Stderr, "usage: bucketmap scan <keyword> (not implemented yet)")
+	fmt.Fprintln(os.Stderr, "usage: kickbucket scan <keyword> (not implemented yet)")
 	os.Exit(2)
 }

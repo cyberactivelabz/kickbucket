@@ -5,20 +5,20 @@ before:
     - go mod tidy
 
 builds:
-  - id: bucketmap
-    main: ./cmd/bucketmap
-    binary: bucketmap
+  - id: kickbucket
+    main: ./cmd/kickbucket
+    binary: kickbucket
     env:
       - CGO_ENABLED=0
     goos: [linux, darwin, windows]
     goarch: [amd64, arm64]
-    # Needs `var version = "dev"` in package main of cmd/bucketmap.
+    # Needs `var version = "dev"` in package main of cmd/kickbucket.
     ldflags:
       - -s -w -X main.version={{.Version}} -X main.commit={{.ShortCommit}} -X main.date={{.Date}}
 
 archives:
   - formats: [tar.gz]
-    name_template: "bucketmap_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    name_template: "kickbucket_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
     format_overrides:
       - goos: windows
         formats: [zip]

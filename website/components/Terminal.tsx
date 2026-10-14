@@ -2,7 +2,7 @@
 type Line = { text: string; tone?: "amber" | "coral" | "mint" | "mute" };
 
 const lines: Line[] = [
-  { text: "$ bucketmap scan acme", tone: "mute" },
+  { text: "$ kickbucket scan acme", tone: "mute" },
   { text: "scanning 1,240 candidate names on s3, gcs, azure", tone: "mute" },
   { text: "s3     acme-backups    PUBLIC READ", tone: "coral" },
   { text: "azure  acme-logs       LISTABLE", tone: "amber" },
@@ -20,7 +20,7 @@ const toneClass = {
 export default function Terminal() {
   return (
     <pre
-      aria-label="Example BucketMap scan output"
+      aria-label="Example Kickbucket scan output"
       className="overflow-x-auto rounded-md border border-line bg-panel p-5 font-mono text-sm leading-7"
     >
       {lines.map((l, i) => (

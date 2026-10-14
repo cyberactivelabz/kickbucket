@@ -1,13 +1,13 @@
-# Contributing to BucketMap
+# Contributing to Kickbucket
 
 Thanks for helping. The fastest ways to contribute are a new provider, a wordlist, or a bug fix.
 
 ## Setup
 
 ```sh
-git clone https://github.com/cyberactivelabz/kickbucket && cd bucketmap
+git clone https://github.com/cyberactivelabz/kickbucket && cd kickbucket
 go test ./...
-go run ./cmd/bucketmap --help
+go run ./cmd/kickbucket --help
 ```
 
 ## Add a cloud provider

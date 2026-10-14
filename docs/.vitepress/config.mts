@@ -1,13 +1,13 @@
 import { defineConfig } from 'vitepress'
 
 export default defineConfig({
-  title: 'BucketMap',
+  title: 'Kickbucket',
   description: 'The Nmap for cloud storage',
   cleanUrls: true,
   base: '/kickbucket/',
   themeConfig: {
     nav: [
-      { text: 'Website', link: 'https://bucketmap.dev' },
+      { text: 'Website', link: 'https://kickbucket.dev' },
       { text: 'GitHub', link: 'https://github.com/cyberactivelabz/kickbucket' },
       { text: 'Sponsor', link: 'https://github.com/sponsors/cyberactivelabz' },
     ],

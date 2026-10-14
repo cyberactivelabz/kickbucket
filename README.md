@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://bucketmap.dev"><img src="logo.png" width="200" alt="BucketMap"></a>
+  <a href="https://kickbucket.dev"><img src="logo.png" width="200" alt="Kickbucket"></a>
 </p>
 
 <h3 align="center">The Nmap for cloud storage.</h3>
@@ -13,9 +13,9 @@
 </p>
 
 <p align="center">
-  <a href="https://bucketmap.dev">Website</a> ·
-  <a href="https://docs.bucketmap.dev">Docs</a> ·
-  <a href="https://discord.gg/bucketmap">Discord</a> ·
+  <a href="https://kickbucket.dev">Website</a> ·
+  <a href="https://docs.kickbucket.dev">Docs</a> ·
+  <a href="https://discord.gg/kickbucket">Discord</a> ·
   <a href="https://github.com/cyberactivelabz/kickbucket/discussions">Discussions</a>
 </p>
 
@@ -25,7 +25,7 @@
 
 ## What it does
 
-Misconfigured cloud storage is one of the most common ways data leaks. BucketMap takes a keyword (a company, product or project name), generates likely bucket names from it and a wordlist, checks each one across cloud providers in parallel, and tells you how exposed each bucket is.
+Misconfigured cloud storage is one of the most common ways data leaks. Kickbucket takes a keyword (a company, product or project name), generates likely bucket names from it and a wordlist, checks each one across cloud providers in parallel, and tells you how exposed each bucket is.
 
 | Access level | Meaning |
 |---|---|
@@ -44,7 +44,7 @@ Misconfigured cloud storage is one of the most common ways data leaks. BucketMap
 ## Install
 
 ```sh
-go install github.com/cyberactivelabz/kickbucket/cmd/bucketmap@latest
+go install github.com/cyberactivelabz/kickbucket/cmd/kickbucket@latest
 ```
 
 Prebuilt binaries for Linux, macOS and Windows (amd64 and arm64) are on the [releases page](https://github.com/cyberactivelabz/kickbucket/releases).
@@ -52,7 +52,7 @@ Prebuilt binaries for Linux, macOS and Windows (amd64 and arm64) are on the [rel
 ## Quick start
 
 ```sh
-bucketmap scan acme
+kickbucket scan acme
 ```
 
 Example output (illustrative):
@@ -65,7 +65,7 @@ gcs    acme-assets     private
 3 buckets found, 2 exposed
 ```
 
-More in the [docs](https://docs.bucketmap.dev): [CLI](https://docs.bucketmap.dev/cli) · [Web GUI](https://docs.bucketmap.dev/web-gui) · [Go library](https://docs.bucketmap.dev/api) · [Wordlists](https://docs.bucketmap.dev/wordlists)
+More in the [docs](https://docs.kickbucket.dev): [CLI](https://docs.kickbucket.dev/cli) · [Web GUI](https://docs.kickbucket.dev/web-gui) · [Go library](https://docs.kickbucket.dev/api) · [Wordlists](https://docs.kickbucket.dev/wordlists)
 
 ## Providers
 
@@ -78,7 +78,7 @@ More in the [docs](https://docs.bucketmap.dev): [CLI](https://docs.bucketmap.dev
 
 ## Responsible use
 
-Use BucketMap only on assets you own or are explicitly authorized to test. Finding an exposed bucket does not give you permission to download or modify its contents. If you find someone else's exposed data, report it to the owner through their disclosure program.
+Use Kickbucket only on assets you own or are explicitly authorized to test. Finding an exposed bucket does not give you permission to download or modify its contents. If you find someone else's exposed data, report it to the owner through their disclosure program.
 
 ## Contributing
 
@@ -86,7 +86,7 @@ The easiest ways in are adding a cloud provider or a wordlist. Read [CONTRIBUTIN
 
 ## Sponsors
 
-BucketMap is MIT licensed and funded by sponsors. [Become a sponsor](https://github.com/sponsors/cyberactivelabz) to get your name or logo here and on [bucketmap.dev](https://bucketmap.dev).
+Kickbucket is MIT licensed and funded by sponsors. [Become a sponsor](https://github.com/sponsors/cyberactivelabz) to get your name or logo here and on [kickbucket.dev](https://kickbucket.dev).
 
 ## Contributors
 

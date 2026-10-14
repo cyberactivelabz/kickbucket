@@ -35,9 +35,9 @@ export default async function Home() {
   return (
     <main className="mx-auto max-w-5xl px-6">
       <header className="flex items-center justify-between py-6 font-mono text-sm">
-        <span className="font-medium">bucketmap</span>
+        <span className="font-medium">kickbucket</span>
         <nav className="flex gap-6 text-mute">
-          <a className="hover:text-text" href="https://docs.bucketmap.dev">Docs</a>
+          <a className="hover:text-text" href="https://docs.kickbucket.dev">Docs</a>
           <a className="hover:text-text" href={GITHUB}>GitHub</a>
           <a className="hover:text-text" href={`https://github.com/sponsors/${REPO.split("/")[0]}`}>Sponsor</a>
         </nav>
@@ -51,7 +51,7 @@ export default async function Home() {
           Find exposed S3, GCS and Azure buckets before someone else does. Open source, written in Go.
         </p>
         <code className="mt-8 block w-fit max-w-full select-all overflow-x-auto rounded-md border border-line bg-panel px-4 py-3 font-mono text-sm text-amber">
-          go install github.com/{REPO}/cmd/bucketmap@latest
+          go install github.com/{REPO}/cmd/kickbucket@latest
         </code>
         <div className="mt-10"><Terminal /></div>
       </section>
@@ -73,7 +73,7 @@ export default async function Home() {
       <section className="flex flex-wrap gap-4 border-t border-line py-14">
         <a href={GITHUB} className="rounded-md bg-amber px-5 py-3 font-semibold text-ink">View on GitHub</a>
         <a href={`${GITHUB}/releases`} className="rounded-md border border-line px-5 py-3">Download</a>
-        <a href="https://docs.bucketmap.dev" className="rounded-md border border-line px-5 py-3">Read the docs</a>
+        <a href="https://docs.kickbucket.dev" className="rounded-md border border-line px-5 py-3">Read the docs</a>
       </section>
 
       <footer className="border-t border-line py-8 text-sm text-mute">

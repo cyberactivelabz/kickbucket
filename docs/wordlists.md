@@ -1,11 +1,11 @@
 # Wordlists
 
-A wordlist is a plain text file, one word per line, lowercase, no duplicates. BucketMap combines each word with your keyword to build candidate bucket names.
+A wordlist is a plain text file, one word per line, lowercase, no duplicates. Kickbucket combines each word with your keyword to build candidate bucket names.
 
 ## Use your own
 
 ```sh
-bucketmap scan acme --wordlist ./my-words.txt
+kickbucket scan acme --wordlist ./my-words.txt
 ```
 
 ## Share one

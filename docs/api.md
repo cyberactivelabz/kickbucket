@@ -8,11 +8,11 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/cyberactivelabz/kickbucket/pkg/bucketmap"
+	"github.com/cyberactivelabz/kickbucket/pkg/kickbucket"
 )
 
 func main() {
-	results, err := bucketmap.Scan(context.Background(), "acme", bucketmap.Options{})
+	results, err := kickbucket.Scan(context.Background(), "acme", kickbucket.Options{})
 	if err != nil {
 		log.Fatalf("scanning: %v", err)
 	}
@@ -23,5 +23,5 @@ func main() {
 ```
 
 ::: warning
-This shows the intended API shape. Update it to match the real `pkg/bucketmap` package once it exists.
+This shows the intended API shape. Update it to match the real `pkg/kickbucket` package once it exists.
 :::
