@@ -31,6 +31,7 @@ type Result struct {
 	Provider string
 	Name     string
 	Access   Access
+	Error    string `json:",omitempty"`
 }
 
 // Provider is implemented once per cloud storage service.

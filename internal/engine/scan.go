@@ -21,6 +21,7 @@ func Scan(ctx context.Context, provider Provider, candidates []string, workers i
 	type checked struct {
 		name   string
 		access Access
+		err    error
 	}
 	jobs := make(chan string)
 	results := make(chan checked)
@@ -41,12 +42,10 @@ func Scan(ctx context.Context, provider Provider, candidates []string, workers i
 						return
 					}
 					access, err := provider.Check(ctx, name)
-					if err == nil {
-						select {
-						case results <- checked{name: name, access: access}:
-						case <-ctx.Done():
-							return
-						}
+					select {
+					case results <- checked{name: name, access: access, err: err}:
+					case <-ctx.Done():
+						return
 					}
 				}
 			}
@@ -70,7 +69,11 @@ func Scan(ctx context.Context, provider Provider, candidates []string, workers i
 
 	output := make([]Result, 0, len(candidates))
 	for result := range results {
-		output = append(output, Result{Provider: provider.Name(), Name: result.name, Access: result.access})
+		entry := Result{Provider: provider.Name(), Name: result.name, Access: result.access}
+		if result.err != nil {
+			entry.Error = result.err.Error()
+		}
+		output = append(output, entry)
 	}
 	return output, ctx.Err()
 }

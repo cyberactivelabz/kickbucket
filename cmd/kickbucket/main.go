@@ -97,7 +97,9 @@ func runScan(args []string) error {
 		if !wanted[provider.Name()] {
 			continue
 		}
-		providerResults, scanErr := engine.Scan(context.Background(), provider, provider.Candidates(keyword, words), 8, engine.NewLimiter(10))
+		limiter := engine.NewLimiter(10)
+		providerResults, scanErr := engine.Scan(context.Background(), provider, provider.Candidates(keyword, words), 8, limiter)
+		limiter.Stop()
 		if scanErr != nil {
 			return scanErr
 		}
@@ -107,7 +109,11 @@ func runScan(args []string) error {
 		return json.NewEncoder(os.Stdout).Encode(results)
 	}
 	for _, result := range results {
-		fmt.Printf("%-5s %-30s %s\n", result.Provider, result.Name, strings.ToUpper(result.Access.String()))
+		status := strings.ToUpper(result.Access.String())
+		if result.Error != "" {
+			status = "ERROR: " + result.Error
+		}
+		fmt.Printf("%-5s %-30s %s\n", result.Provider, result.Name, status)
 	}
 	fmt.Printf("%d buckets found, %d exposed\n", len(results), countExposed(results))
 	return nil

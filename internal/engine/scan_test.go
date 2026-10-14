@@ -2,6 +2,7 @@ package engine
 
 import (
 	"context"
+	"errors"
 	"testing"
 )
 
@@ -23,5 +24,23 @@ func TestLimiterHonorsCancellation(t *testing.T) {
 	cancel()
 	if err := NewLimiter(1).Wait(ctx); err == nil {
 		t.Fatal("Wait() returned nil for cancelled context")
+	}
+}
+
+type errorProvider struct{}
+
+func (errorProvider) Name() string                         { return "error" }
+func (errorProvider) Candidates(string, []string) []string { return nil }
+func (errorProvider) Check(context.Context, string) (Access, error) {
+	return AccessUnknown, errors.New("bucket unavailable")
+}
+
+func TestScanPreservesProviderErrors(t *testing.T) {
+	results, err := Scan(context.Background(), errorProvider{}, []string{"one"}, 1, nil)
+	if err != nil {
+		t.Fatalf("Scan() error = %v", err)
+	}
+	if len(results) != 1 || results[0].Error != "bucket unavailable" {
+		t.Fatalf("Scan() results = %#v, want one preserved error", results)
 	}
 }
