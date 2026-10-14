@@ -8,6 +8,10 @@ Kickbucket builds candidate bucket names from the keyword and a wordlist, checks
 
 Run `kickbucket --help` and `kickbucket scan --help` for the flags in your version.
 
-::: info
-This page is a starter. Document each flag here as the CLI stabilizes.
-:::
+## Flags
+
+- `--wordlist <path>` reads candidate suffixes from a file. It defaults to `wordlists/default.txt`.
+- `--providers <list>` selects a comma-separated subset of `s3`, `gcs`, and `azure`. It defaults to all three.
+- `--json` emits results as JSON on stdout.
+
+The authorization notice and errors are written to stderr. Use Kickbucket only on cloud storage you own or are explicitly authorized to test.
