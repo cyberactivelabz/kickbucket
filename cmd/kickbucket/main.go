@@ -5,11 +5,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"os"
 	"strings"
 
 	"github.com/cyberactivelabz/kickbucket/internal/engine"
 	"github.com/cyberactivelabz/kickbucket/internal/engine/providers"
+	scanserver "github.com/cyberactivelabz/kickbucket/internal/server"
 )
 
 // Set at build time by GoReleaser (see .goreleaser.yaml).
@@ -29,6 +31,13 @@ func main() {
 		return
 	}
 	if len(os.Args) < 2 || os.Args[1] != "scan" {
+		if len(os.Args) > 1 && os.Args[1] == "serve" {
+			if err := runServe(os.Args[2:]); err != nil {
+				fmt.Fprintln(os.Stderr, "kickbucket:", err)
+				os.Exit(2)
+			}
+			return
+		}
 		printUsage(os.Stderr)
 		os.Exit(2)
 	}
@@ -39,11 +48,64 @@ func main() {
 }
 
 func printUsage(output *os.File) {
-	fmt.Fprintln(output, "Usage: kickbucket scan <keyword> [flags]")
+	fmt.Fprintln(output, "Usage:")
+	fmt.Fprintln(output, "  kickbucket scan <keyword> [flags]")
+	fmt.Fprintln(output, "  kickbucket serve [flags]")
 	fmt.Fprintln(output, "\nFlags:")
 	fmt.Fprintln(output, "  --wordlist <path>       wordlist file (default: wordlists/default.txt)")
 	fmt.Fprintln(output, "  --providers <list>      comma-separated providers: s3,gcs,azure (default: all)")
 	fmt.Fprintln(output, "  --json                  emit JSON results")
+	fmt.Fprintln(output, "  --addr <address>        serve API address (default: 127.0.0.1:8080)")
+}
+
+type serveOptions struct {
+	address      string
+	wordlistPath string
+}
+
+func runServe(args []string) error {
+	if len(args) == 1 && (args[0] == "--help" || args[0] == "-h") {
+		printUsage(os.Stdout)
+		return nil
+	}
+	options, err := parseServeArgs(args)
+	if err != nil {
+		return err
+	}
+	words, err := readWordlist(options.wordlistPath)
+	if err != nil {
+		return err
+	}
+	handler := scanserver.NewHandler(scanserver.Config{Providers: providers.NewRegistry(providers.Config{}), Words: words})
+	server := &http.Server{Addr: options.address, Handler: handler}
+	fmt.Fprintf(os.Stderr, "kickbucket API listening on http://%s\n", options.address)
+	return server.ListenAndServe()
+}
+
+func parseServeArgs(args []string) (serveOptions, error) {
+	options := serveOptions{address: "127.0.0.1:8080", wordlistPath: "wordlists/default.txt"}
+	for i := 0; i < len(args); i++ {
+		switch args[i] {
+		case "--addr":
+			if i+1 >= len(args) {
+				return serveOptions{}, fmt.Errorf("--addr requires a value")
+			}
+			i++
+			options.address = args[i]
+		case "--wordlist":
+			if i+1 >= len(args) {
+				return serveOptions{}, fmt.Errorf("--wordlist requires a value")
+			}
+			i++
+			options.wordlistPath = args[i]
+		case "--help", "-h":
+			printUsage(os.Stdout)
+			return options, nil
+		default:
+			return serveOptions{}, fmt.Errorf("unknown flag %q", args[i])
+		}
+	}
+	return options, nil
 }
 
 func runScan(args []string) error {

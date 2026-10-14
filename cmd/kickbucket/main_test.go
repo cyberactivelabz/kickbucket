@@ -33,3 +33,14 @@ func TestParseScanArgsRejectsInvalidInput(t *testing.T) {
 		}
 	}
 }
+
+func TestParseServeArgs(t *testing.T) {
+	got, err := parseServeArgs([]string{"--addr", "localhost:9090", "--wordlist", "custom.txt"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := serveOptions{address: "localhost:9090", wordlistPath: "custom.txt"}
+	if got != want {
+		t.Fatalf("parseServeArgs() = %#v, want %#v", got, want)
+	}
+}
