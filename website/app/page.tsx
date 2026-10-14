@@ -1,4 +1,5 @@
 import Terminal from "@/components/Terminal";
+import ScanPanel from "@/components/ScanPanel";
 
 const REPO = "cyberactivelabz/kickbucket";
 const GITHUB = `https://github.com/${REPO}`;
@@ -55,6 +56,8 @@ export default async function Home() {
         </code>
         <div className="mt-10"><Terminal /></div>
       </section>
+
+      <ScanPanel />
 
       <section className="grid gap-10 border-t border-line py-14 sm:grid-cols-3">
         {features.map((f) => (

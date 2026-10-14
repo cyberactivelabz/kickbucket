@@ -1,0 +1,59 @@
+package main
+
+import (
+	"reflect"
+	"testing"
+)
+
+func TestParseScanArgsDefaults(t *testing.T) {
+	got, err := parseScanArgs([]string{"acme"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := scanOptions{keyword: "acme", wordlistPath: "wordlists/default.txt", providers: []string{"s3", "gcs", "azure"}}
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("parseScanArgs() = %#v, want %#v", got, want)
+	}
+}
+
+func TestParseScanArgsFlags(t *testing.T) {
+	got, err := parseScanArgs([]string{"acme", "--json", "--wordlist", "words.txt", "--providers", "GCS, azure"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got.keyword != "acme" || got.wordlistPath != "words.txt" || !got.json || !reflect.DeepEqual(got.providers, []string{"gcs", "azure"}) {
+		t.Fatalf("parseScanArgs() = %#v", got)
+	}
+}
+
+func TestParseScanArgsRejectsInvalidInput(t *testing.T) {
+	for _, args := range [][]string{{}, {"acme", "--providers"}, {"acme", "--providers", "digitalocean"}, {"acme", "--wat"}} {
+		if _, err := parseScanArgs(args); err == nil {
+			t.Errorf("parseScanArgs(%q) returned nil error", args)
+		}
+	}
+}
+
+func TestParseServeArgs(t *testing.T) {
+	got, err := parseServeArgs([]string{"--addr", "localhost:9090", "--wordlist", "custom.txt"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := serveOptions{address: "localhost:9090", wordlistPath: "custom.txt"}
+	if got != want {
+		t.Fatalf("parseServeArgs() = %#v, want %#v", got, want)
+	}
+}
+
+func TestValidateServeAddress(t *testing.T) {
+	for _, address := range []string{"127.0.0.1:8080", "localhost:9090", "[::1]:8080", ":8080"} {
+		if err := validateServeAddress(address); err != nil {
+			t.Errorf("validateServeAddress(%q) = %v", address, err)
+		}
+	}
+	for _, address := range []string{"0.0.0.0:8080", "192.168.1.10:8080", "localhost"} {
+		if err := validateServeAddress(address); err == nil {
+			t.Errorf("validateServeAddress(%q) returned nil", address)
+		}
+	}
+}

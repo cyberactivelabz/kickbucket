@@ -28,9 +28,10 @@ func (a Access) String() string {
 
 // Result is one bucket found by a scan.
 type Result struct {
-	Provider string
-	Name     string
-	Access   Access
+	Provider string `json:"provider"`
+	Name     string `json:"name"`
+	Access   Access `json:"access"`
+	Error    string `json:"error,omitempty"`
 }
 
 // Provider is implemented once per cloud storage service.

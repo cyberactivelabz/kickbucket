@@ -58,10 +58,10 @@ kickbucket scan acme
 Example output (illustrative):
 
 ```
-scanning 1,240 candidate names on s3, gcs, azure
-s3     acme-backups    PUBLIC READ
-azure  acme-logs       LISTABLE
-gcs    acme-assets     private
+Only scan cloud storage you own or are explicitly authorized to test.
+s3    acme-backups                   LISTABLE
+azure acme-logs                      LISTABLE
+gcs   acme-assets                    PRIVATE
 3 buckets found, 2 exposed
 ```
 
