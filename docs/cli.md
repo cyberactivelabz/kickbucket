@@ -24,3 +24,5 @@ Run `kickbucket serve` to expose the read-only scan API on `127.0.0.1:8080`. The
 - `--wordlist <path>` selects the wordlist used by API requests.
 
 Send `POST /api/scan` with `{"keyword":"acme","providers":["s3","gcs","azure"]}`. The `providers` field is optional and the response is the same JSON result shape as `kickbucket scan --json`.
+
+Use `GET /healthz` for a lightweight readiness check. Request bodies are limited to 1 MiB and reject unknown JSON fields.

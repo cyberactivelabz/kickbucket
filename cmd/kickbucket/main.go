@@ -8,7 +8,10 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"os/signal"
 	"strings"
+	"syscall"
+	"time"
 
 	"github.com/cyberactivelabz/kickbucket/internal/engine"
 	"github.com/cyberactivelabz/kickbucket/internal/engine/providers"
@@ -83,7 +86,18 @@ func runServe(args []string) error {
 	handler := scanserver.NewHandler(scanserver.Config{Providers: providers.NewRegistry(providers.Config{}), Words: words})
 	server := &http.Server{Addr: options.address, Handler: handler}
 	fmt.Fprintf(os.Stderr, "kickbucket API listening on http://%s\n", options.address)
-	return server.ListenAndServe()
+	shutdown, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+	go func() {
+		<-shutdown.Done()
+		shutdownContext, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		_ = server.Shutdown(shutdownContext)
+	}()
+	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		return err
+	}
+	return nil
 }
 
 func validateServeAddress(address string) error {

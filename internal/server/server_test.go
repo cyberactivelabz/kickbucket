@@ -50,3 +50,25 @@ func TestScanEndpointRejectsUnknownProvider(t *testing.T) {
 		t.Fatalf("status = %d, want 400", recorder.Code)
 	}
 }
+
+func TestHealthEndpoint(t *testing.T) {
+	handler := NewHandler(Config{})
+	request := httptest.NewRequest(http.MethodGet, "/healthz", nil)
+	recorder := httptest.NewRecorder()
+	handler.ServeHTTP(recorder, request)
+	if recorder.Code != http.StatusOK || recorder.Body.String() != "{\"status\":\"ok\"}\n" {
+		t.Fatalf("health response = %d %q", recorder.Code, recorder.Body.String())
+	}
+}
+
+func TestScanEndpointRejectsUnknownFieldsAndTrailingJSON(t *testing.T) {
+	handler := NewHandler(Config{Providers: []engine.Provider{testProvider{"s3", engine.AccessPrivate}}})
+	for _, body := range []string{`{"keyword":"acme","unexpected":true}`, `{"keyword":"acme"}{"keyword":"again"}`} {
+		request := httptest.NewRequest(http.MethodPost, "/api/scan", strings.NewReader(body))
+		recorder := httptest.NewRecorder()
+		handler.ServeHTTP(recorder, request)
+		if recorder.Code != http.StatusBadRequest {
+			t.Errorf("body %q returned status %d, want 400", body, recorder.Code)
+		}
+	}
+}

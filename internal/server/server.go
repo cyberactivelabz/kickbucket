@@ -4,6 +4,7 @@ package server
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"sort"
 	"strings"
@@ -53,13 +54,26 @@ func (h *Handler) ServeHTTP(response http.ResponseWriter, request *http.Request)
 		response.WriteHeader(http.StatusNoContent)
 		return
 	}
+	if request.URL.Path == "/healthz" && request.Method == http.MethodGet {
+		response.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(response).Encode(map[string]string{"status": "ok"})
+		return
+	}
 	if request.URL.Path != "/api/scan" || request.Method != http.MethodPost {
 		writeError(response, http.StatusNotFound, "endpoint not found")
 		return
 	}
+	request.Body = http.MaxBytesReader(response, request.Body, 1<<20)
 	var input scanRequest
-	if err := json.NewDecoder(request.Body).Decode(&input); err != nil {
+	decoder := json.NewDecoder(request.Body)
+	decoder.DisallowUnknownFields()
+	if err := decoder.Decode(&input); err != nil {
 		writeError(response, http.StatusBadRequest, "invalid JSON body")
+		return
+	}
+	var extra any
+	if err := decoder.Decode(&extra); err != io.EOF {
+		writeError(response, http.StatusBadRequest, "request body must contain one JSON object")
 		return
 	}
 	input.Keyword = strings.TrimSpace(input.Keyword)
