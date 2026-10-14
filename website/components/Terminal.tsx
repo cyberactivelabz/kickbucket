@@ -1,12 +1,11 @@
-// Illustrative output. Replace with an asciinema recording once the CLI exists.
 type Line = { text: string; tone?: "amber" | "coral" | "mint" | "mute" };
 
 const lines: Line[] = [
   { text: "$ kickbucket scan acme", tone: "mute" },
-  { text: "scanning 1,240 candidate names on s3, gcs, azure", tone: "mute" },
-  { text: "s3     acme-backups    PUBLIC READ", tone: "coral" },
-  { text: "azure  acme-logs       LISTABLE", tone: "amber" },
-  { text: "gcs    acme-assets     private", tone: "mint" },
+  { text: "Only scan cloud storage you own or are authorized to test.", tone: "mute" },
+  { text: "s3    acme-backups                   LISTABLE", tone: "amber" },
+  { text: "azure acme-logs                      LISTABLE", tone: "amber" },
+  { text: "gcs   acme-assets                    PRIVATE", tone: "mint" },
   { text: "3 buckets found, 2 exposed", tone: "mute" },
 ];
 
