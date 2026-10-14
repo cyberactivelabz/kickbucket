@@ -4,6 +4,7 @@ export default defineConfig({
   title: 'BucketMap',
   description: 'The Nmap for cloud storage',
   cleanUrls: true,
+  base: '/kickbucket/',
   themeConfig: {
     nav: [
       { text: 'Website', link: 'https://bucketmap.dev' },
