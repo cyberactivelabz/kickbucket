@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body { @apply bg-ink text-text font-sans antialiased; }
+a:focus-visible, button:focus-visible { outline: 2px solid #FFB020; outline-offset: 3px; }
+
+/* One orchestrated moment: scan output prints line by line on load. */
+.scan-line { opacity: 0; animation: print 0.01s steps(1) forwards; animation-delay: calc(var(--i) * 260ms); }
+@keyframes print { to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .scan-line { opacity: 1; animation: none; } }

@@ -1,0 +1,12 @@
+dev
+prod
+staging
+backup
+backups
+assets
+logs
+data
+public
+private
+uploads
+media

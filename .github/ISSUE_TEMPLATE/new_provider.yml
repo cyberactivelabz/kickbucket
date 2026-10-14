@@ -1,0 +1,17 @@
+name: New provider
+description: Propose support for another cloud storage provider
+labels: [provider]
+body:
+  - type: input
+    id: provider
+    attributes: { label: Provider name }
+    validations: { required: true }
+  - type: textarea
+    id: urls
+    attributes: { label: Bucket URL formats and how public access is detected, description: Link the provider's docs. }
+    validations: { required: true }
+  - type: dropdown
+    id: build
+    attributes:
+      label: Will you implement it?
+      options: ["Yes", "No, I'm requesting it"]

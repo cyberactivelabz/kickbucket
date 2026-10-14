@@ -6,17 +6,17 @@
 <p align="center">Find exposed S3, GCS and Azure buckets fast. Open source, written in Go.</p>
 
 <p align="center">
-  <a href="https://github.com/YOUR_GH_USER/bucketmap/stargazers"><img src="https://img.shields.io/github/stars/YOUR_GH_USER/bucketmap?style=flat" alt="Stars"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/github/license/YOUR_GH_USER/bucketmap" alt="MIT License"></a>
-  <a href="https://github.com/YOUR_GH_USER/bucketmap/releases"><img src="https://img.shields.io/github/v/release/YOUR_GH_USER/bucketmap?include_prereleases" alt="Release"></a>
-  <a href="https://github.com/sponsors/YOUR_GH_USER"><img src="https://img.shields.io/badge/Sponsor-%E2%9D%A4-red" alt="Sponsor"></a>
+  <a href="https://github.com/cyberactivelabz/kickbucket/stargazers"><img src="https://img.shields.io/github/stars/cyberactivelabz/kickbucket?style=flat" alt="Stars"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/cyberactivelabz/kickbucket" alt="MIT License"></a>
+  <a href="https://github.com/cyberactivelabz/kickbucket/releases"><img src="https://img.shields.io/github/v/release/cyberactivelabz/kickbucket?include_prereleases" alt="Release"></a>
+  <a href="https://github.com/sponsors/cyberactivelabz"><img src="https://img.shields.io/badge/Sponsor-%E2%9D%A4-red" alt="Sponsor"></a>
 </p>
 
 <p align="center">
   <a href="https://bucketmap.dev">Website</a> ·
   <a href="https://docs.bucketmap.dev">Docs</a> ·
   <a href="https://discord.gg/bucketmap">Discord</a> ·
-  <a href="https://github.com/YOUR_GH_USER/bucketmap/discussions">Discussions</a>
+  <a href="https://github.com/cyberactivelabz/kickbucket/discussions">Discussions</a>
 </p>
 
 ---
@@ -44,10 +44,10 @@ Misconfigured cloud storage is one of the most common ways data leaks. BucketMap
 ## Install
 
 ```sh
-go install github.com/YOUR_GH_USER/bucketmap/cmd/bucketmap@latest
+go install github.com/cyberactivelabz/kickbucket/cmd/bucketmap@latest
 ```
 
-Prebuilt binaries for Linux, macOS and Windows (amd64 and arm64) are on the [releases page](https://github.com/YOUR_GH_USER/bucketmap/releases).
+Prebuilt binaries for Linux, macOS and Windows (amd64 and arm64) are on the [releases page](https://github.com/cyberactivelabz/kickbucket/releases).
 
 ## Quick start
 
@@ -82,16 +82,16 @@ Use BucketMap only on assets you own or are explicitly authorized to test. Findi
 
 ## Contributing
 
-The easiest ways in are adding a cloud provider or a wordlist. Read [CONTRIBUTING.md](CONTRIBUTING.md) and open a "New provider" issue to get started. Questions go in [Discussions](https://github.com/YOUR_GH_USER/bucketmap/discussions).
+The easiest ways in are adding a cloud provider or a wordlist. Read [CONTRIBUTING.md](CONTRIBUTING.md) and open a "New provider" issue to get started. Questions go in [Discussions](https://github.com/cyberactivelabz/kickbucket/discussions).
 
 ## Sponsors
 
-BucketMap is MIT licensed and funded by sponsors. [Become a sponsor](https://github.com/sponsors/YOUR_GH_USER) to get your name or logo here and on [bucketmap.dev](https://bucketmap.dev).
+BucketMap is MIT licensed and funded by sponsors. [Become a sponsor](https://github.com/sponsors/cyberactivelabz) to get your name or logo here and on [bucketmap.dev](https://bucketmap.dev).
 
 ## Contributors
 
-<a href="https://github.com/YOUR_GH_USER/bucketmap/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=YOUR_GH_USER/bucketmap" alt="Contributors">
+<a href="https://github.com/cyberactivelabz/kickbucket/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=cyberactivelabz/kickbucket" alt="Contributors">
 </a>
 
 ## License
