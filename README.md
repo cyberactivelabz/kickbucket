@@ -1,2 +1,99 @@
-# kickbucket
-The Nmap for cloud storage. Find exposed S3, GCS and Azure buckets, fast.
+<p align="center">
+  <a href="https://bucketmap.dev"><img src="logo.png" width="200" alt="BucketMap"></a>
+</p>
+
+<h3 align="center">The Nmap for cloud storage.</h3>
+<p align="center">Find exposed S3, GCS and Azure buckets fast. Open source, written in Go.</p>
+
+<p align="center">
+  <a href="https://github.com/YOUR_GH_USER/bucketmap/stargazers"><img src="https://img.shields.io/github/stars/YOUR_GH_USER/bucketmap?style=flat" alt="Stars"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/YOUR_GH_USER/bucketmap" alt="MIT License"></a>
+  <a href="https://github.com/YOUR_GH_USER/bucketmap/releases"><img src="https://img.shields.io/github/v/release/YOUR_GH_USER/bucketmap?include_prereleases" alt="Release"></a>
+  <a href="https://github.com/sponsors/YOUR_GH_USER"><img src="https://img.shields.io/badge/Sponsor-%E2%9D%A4-red" alt="Sponsor"></a>
+</p>
+
+<p align="center">
+  <a href="https://bucketmap.dev">Website</a> ·
+  <a href="https://docs.bucketmap.dev">Docs</a> ·
+  <a href="https://discord.gg/bucketmap">Discord</a> ·
+  <a href="https://github.com/YOUR_GH_USER/bucketmap/discussions">Discussions</a>
+</p>
+
+---
+
+> **Status: early development.** The engine and the S3, GCS and Azure providers are being built toward v0.1. Interfaces may change until v1.0. Watch or star the repo to follow along.
+
+## What it does
+
+Misconfigured cloud storage is one of the most common ways data leaks. BucketMap takes a keyword (a company, product or project name), generates likely bucket names from it and a wordlist, checks each one across cloud providers in parallel, and tells you how exposed each bucket is.
+
+| Access level | Meaning |
+|---|---|
+| `public read` | Objects can be read without credentials |
+| `listable` | The bucket's contents can be listed without credentials |
+| `private` | The bucket exists and denies anonymous access |
+
+## Features
+
+- **Fast:** a concurrent Go engine with configurable rate limits and timeouts.
+- **Multi-cloud:** S3, GCS and Azure, behind one provider interface. Adding a provider is a single package.
+- **Use it your way:** CLI, local web GUI, or import it as a Go library.
+- **Scriptable:** clean plain-text and JSON output for pipelines.
+- **Bring your own wordlists:** or use the built-in defaults.
+
+## Install
+
+```sh
+go install github.com/YOUR_GH_USER/bucketmap/cmd/bucketmap@latest
+```
+
+Prebuilt binaries for Linux, macOS and Windows (amd64 and arm64) are on the [releases page](https://github.com/YOUR_GH_USER/bucketmap/releases).
+
+## Quick start
+
+```sh
+bucketmap scan acme
+```
+
+Example output (illustrative):
+
+```
+scanning 1,240 candidate names on s3, gcs, azure
+s3     acme-backups    PUBLIC READ
+azure  acme-logs       LISTABLE
+gcs    acme-assets     private
+3 buckets found, 2 exposed
+```
+
+More in the [docs](https://docs.bucketmap.dev): [CLI](https://docs.bucketmap.dev/cli) · [Web GUI](https://docs.bucketmap.dev/web-gui) · [Go library](https://docs.bucketmap.dev/api) · [Wordlists](https://docs.bucketmap.dev/wordlists)
+
+## Providers
+
+| Provider | Status |
+|---|---|
+| Amazon S3 | In progress |
+| Google Cloud Storage | In progress |
+| Azure Blob Storage | In progress |
+| DigitalOcean Spaces, Backblaze B2, Wasabi | Wanted: [add one](CONTRIBUTING.md) |
+
+## Responsible use
+
+Use BucketMap only on assets you own or are explicitly authorized to test. Finding an exposed bucket does not give you permission to download or modify its contents. If you find someone else's exposed data, report it to the owner through their disclosure program.
+
+## Contributing
+
+The easiest ways in are adding a cloud provider or a wordlist. Read [CONTRIBUTING.md](CONTRIBUTING.md) and open a "New provider" issue to get started. Questions go in [Discussions](https://github.com/YOUR_GH_USER/bucketmap/discussions).
+
+## Sponsors
+
+BucketMap is MIT licensed and funded by sponsors. [Become a sponsor](https://github.com/sponsors/YOUR_GH_USER) to get your name or logo here and on [bucketmap.dev](https://bucketmap.dev).
+
+## Contributors
+
+<a href="https://github.com/YOUR_GH_USER/bucketmap/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=YOUR_GH_USER/bucketmap" alt="Contributors">
+</a>
+
+## License
+
+[MIT](LICENSE)
