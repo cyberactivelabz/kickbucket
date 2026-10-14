@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"sort"
 	"strings"
 
 	"github.com/cyberactivelabz/kickbucket/internal/engine"
@@ -93,6 +94,7 @@ func (h *Handler) selectProviders(names []string) ([]engine.Provider, error) {
 		for name := range h.providers {
 			names = append(names, name)
 		}
+		sort.Strings(names)
 	}
 	selected := make([]engine.Provider, 0, len(names))
 	seen := make(map[string]bool, len(names))

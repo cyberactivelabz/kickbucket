@@ -18,7 +18,7 @@ The authorization notice and errors are written to stderr. Use Kickbucket only o
 
 ## Local API
 
-Run `kickbucket serve` to expose the read-only scan API on `127.0.0.1:8080`.
+Run `kickbucket serve` to expose the read-only scan API on `127.0.0.1:8080`. The server only accepts loopback addresses so it cannot be exposed accidentally without adding an authentication layer.
 
 - `--addr <address>` changes the listen address.
 - `--wordlist <path>` selects the wordlist used by API requests.

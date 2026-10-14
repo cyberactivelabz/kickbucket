@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net"
 	"net/http"
 	"os"
 	"strings"
@@ -72,6 +73,9 @@ func runServe(args []string) error {
 	if err != nil {
 		return err
 	}
+	if err := validateServeAddress(options.address); err != nil {
+		return err
+	}
 	words, err := readWordlist(options.wordlistPath)
 	if err != nil {
 		return err
@@ -80,6 +84,21 @@ func runServe(args []string) error {
 	server := &http.Server{Addr: options.address, Handler: handler}
 	fmt.Fprintf(os.Stderr, "kickbucket API listening on http://%s\n", options.address)
 	return server.ListenAndServe()
+}
+
+func validateServeAddress(address string) error {
+	host, _, err := net.SplitHostPort(address)
+	if err != nil {
+		return fmt.Errorf("invalid serve address %q: %w", address, err)
+	}
+	if host == "" || strings.EqualFold(host, "localhost") {
+		return nil
+	}
+	ip := net.ParseIP(host)
+	if ip == nil || !ip.IsLoopback() {
+		return fmt.Errorf("serve address must use localhost or a loopback IP")
+	}
+	return nil
 }
 
 func parseServeArgs(args []string) (serveOptions, error) {

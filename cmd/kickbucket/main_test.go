@@ -44,3 +44,16 @@ func TestParseServeArgs(t *testing.T) {
 		t.Fatalf("parseServeArgs() = %#v, want %#v", got, want)
 	}
 }
+
+func TestValidateServeAddress(t *testing.T) {
+	for _, address := range []string{"127.0.0.1:8080", "localhost:9090", "[::1]:8080", ":8080"} {
+		if err := validateServeAddress(address); err != nil {
+			t.Errorf("validateServeAddress(%q) = %v", address, err)
+		}
+	}
+	for _, address := range []string{"0.0.0.0:8080", "192.168.1.10:8080", "localhost"} {
+		if err := validateServeAddress(address); err == nil {
+			t.Errorf("validateServeAddress(%q) returned nil", address)
+		}
+	}
+}
