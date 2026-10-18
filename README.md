@@ -71,9 +71,9 @@ More in the [docs](https://docs.kickbucket.dev): [CLI](https://docs.kickbucket.d
 
 | Provider | Status |
 |---|---|
-| Amazon S3 | In progress |
-| Google Cloud Storage | In progress |
-| Azure Blob Storage | In progress |
+| Amazon S3 | Implemented |
+| Google Cloud Storage | Implemented |
+| Azure Blob Storage | Implemented |
 | DigitalOcean Spaces, Backblaze B2, Wasabi | Wanted: [add one](CONTRIBUTING.md) |
 
 ## Responsible use

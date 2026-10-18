@@ -1,27 +1,19 @@
-# Go library
+# Go API
 
-```go
-package main
+Kickbucket does not expose a public Go library yet. The current programmatic interface is the local HTTP API started by `kickbucket serve`.
 
-import (
-	"context"
-	"fmt"
-	"log"
+## Start the API
 
-	"github.com/cyberactivelabz/kickbucket/pkg/kickbucket"
-)
-
-func main() {
-	results, err := kickbucket.Scan(context.Background(), "acme", kickbucket.Options{})
-	if err != nil {
-		log.Fatalf("scanning: %v", err)
-	}
-	for _, r := range results {
-		fmt.Println(r.Provider, r.Name, r.Access)
-	}
-}
+```sh
+kickbucket serve --object-path public/index.html
 ```
 
-::: warning
-This shows the intended API shape. Update it to match the real `pkg/kickbucket` package once it exists.
-:::
+## Scan
+
+```sh
+curl -sS http://127.0.0.1:8080/api/scan \
+  -H 'Content-Type: application/json' \
+  -d '{"keyword":"acme","providers":["s3","gcs","azure"]}'
+```
+
+The `providers` field is optional. Results contain `provider`, `name`, `access`, and an optional `error` field. Use `GET /healthz` to check readiness. The API is loopback-only and performs anonymous, read-only probes.
