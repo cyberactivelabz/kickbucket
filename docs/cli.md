@@ -14,6 +14,7 @@ Run `kickbucket --help` and `kickbucket scan --help` for the flags in your versi
 - `--providers <list>` selects a comma-separated subset of `s3`, `gcs`, and `azure`. It defaults to all three.
 - `--object-path <path>` probes a known object path for anonymous public-read access.
 - `--json` emits results as JSON on stdout.
+- `--verbose` includes candidates that do not exist. Without it, not-found candidates are omitted while operational failures remain visible as errors.
 
 The authorization notice and errors are written to stderr. Use Kickbucket only on cloud storage you own or are explicitly authorized to test.
 
