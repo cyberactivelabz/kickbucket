@@ -38,6 +38,16 @@ func TestParseScanArgsFlagsBeforeKeyword(t *testing.T) {
 	}
 }
 
+func TestParseScanArgsVerbose(t *testing.T) {
+	got, err := parseScanArgs([]string{"acme", "--verbose"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !got.verbose {
+		t.Fatal("parseScanArgs() did not enable verbose output")
+	}
+}
+
 func TestParseScanArgsRejectsInvalidInput(t *testing.T) {
 	for _, args := range [][]string{{}, {"acme", "--providers"}, {"acme", "--providers", "digitalocean"}, {"acme", "--wat"}} {
 		if _, err := parseScanArgs(args); err == nil {
@@ -74,5 +84,16 @@ func TestCountFoundExcludesErrorRows(t *testing.T) {
 	results := []engine.Result{{Name: "private"}, {Name: "missing", Error: "not found"}, {Name: "listable"}}
 	if got := countFound(results); got != 2 {
 		t.Fatalf("countFound() = %d, want 2", got)
+	}
+}
+
+func TestFilterResultsDropsNotFoundUnlessVerbose(t *testing.T) {
+	results := []engine.Result{{Name: "missing", Error: "bucket not found"}, {Name: "timeout", Error: "request timeout"}, {Name: "private"}}
+	filtered := filterResults(results, false)
+	if len(filtered) != 2 || filtered[0].Name != "timeout" || filtered[1].Name != "private" {
+		t.Fatalf("filterResults() = %#v", filtered)
+	}
+	if got := filterResults(results, true); len(got) != len(results) {
+		t.Fatalf("verbose filter returned %d results, want %d", len(got), len(results))
 	}
 }

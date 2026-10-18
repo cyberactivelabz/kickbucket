@@ -66,6 +66,7 @@ func printUsage(output *os.File) {
 	fmt.Fprintln(output, "  --providers <list>      comma-separated providers: s3,gcs,azure (default: all)")
 	fmt.Fprintln(output, "  --object-path <path>    object path to probe for public read")
 	fmt.Fprintln(output, "  --json                  emit JSON results")
+	fmt.Fprintln(output, "  --verbose               include candidates that do not exist")
 	fmt.Fprintln(output, "  --addr <address>        serve API address (default: 127.0.0.1:8080)")
 }
 
@@ -192,6 +193,7 @@ func runScan(args []string) error {
 		}
 	}
 	if options.json {
+		results = filterResults(results, options.verbose)
 		if err := json.NewEncoder(os.Stdout).Encode(results); err != nil {
 			return err
 		}
@@ -200,6 +202,7 @@ func runScan(args []string) error {
 		}
 		return nil
 	}
+	results = filterResults(results, options.verbose)
 	for _, result := range results {
 		status := strings.ToUpper(result.Access.String())
 		if result.Error != "" {
@@ -220,6 +223,7 @@ type scanOptions struct {
 	providers    []string
 	objectPath   string
 	json         bool
+	verbose      bool
 }
 
 func parseScanArgs(args []string) (scanOptions, error) {
@@ -253,10 +257,11 @@ func parseScanArgs(args []string) (scanOptions, error) {
 	providerList := flags.String("providers", "s3,gcs,azure", "comma-separated providers")
 	objectPath := flags.String("object-path", "", "object path")
 	jsonOutput := flags.Bool("json", false, "emit JSON")
+	verbose := flags.Bool("verbose", false, "include missing candidates")
 	if err := flags.Parse(append(flagArgs, positionals[0])); err != nil {
 		return scanOptions{}, err
 	}
-	options := scanOptions{keyword: positionals[0], wordlistPath: *wordlistPath, objectPath: *objectPath, json: *jsonOutput}
+	options := scanOptions{keyword: positionals[0], wordlistPath: *wordlistPath, objectPath: *objectPath, json: *jsonOutput, verbose: *verbose}
 	for _, name := range strings.Split(*providerList, ",") {
 		name = strings.ToLower(strings.TrimSpace(name))
 		if name != "s3" && name != "gcs" && name != "azure" {
@@ -312,4 +317,23 @@ func countFound(results []engine.Result) int {
 		}
 	}
 	return count
+}
+
+func filterResults(results []engine.Result, verbose bool) []engine.Result {
+	if verbose {
+		return results
+	}
+	filtered := make([]engine.Result, 0, len(results))
+	for _, result := range results {
+		if result.Error != "" && isNotFound(result.Error) {
+			continue
+		}
+		filtered = append(filtered, result)
+	}
+	return filtered
+}
+
+func isNotFound(message string) bool {
+	message = strings.ToLower(message)
+	return strings.Contains(message, "not found")
 }
