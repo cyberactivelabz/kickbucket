@@ -5,7 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
+	"net/url"
 	"sort"
 	"strings"
 
@@ -13,17 +15,19 @@ import (
 )
 
 type Config struct {
-	Providers []engine.Provider
-	Words     []string
-	Workers   int
-	Rate      float64
+	Providers     []engine.Provider
+	Words         []string
+	Workers       int
+	Rate          float64
+	MaxCandidates int
 }
 
 type Handler struct {
-	providers map[string]engine.Provider
-	words     []string
-	workers   int
-	rate      float64
+	providers     map[string]engine.Provider
+	words         []string
+	workers       int
+	rate          float64
+	maxCandidates int
 }
 
 type scanRequest struct {
@@ -44,12 +48,27 @@ func NewHandler(config Config) http.Handler {
 	if config.Rate <= 0 {
 		config.Rate = 10
 	}
-	return &Handler{providers: providerMap, words: config.Words, workers: config.Workers, rate: config.Rate}
+	if config.MaxCandidates <= 0 {
+		config.MaxCandidates = 5000
+	}
+	return &Handler{providers: providerMap, words: config.Words, workers: config.Workers, rate: config.Rate, maxCandidates: config.MaxCandidates}
 }
 
 func (h *Handler) ServeHTTP(response http.ResponseWriter, request *http.Request) {
-	response.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
-	response.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+	if !isLoopbackHost(request.Host) {
+		writeError(response, http.StatusForbidden, "host must be loopback")
+		return
+	}
+	origin := request.Header.Get("Origin")
+	if origin != "" {
+		if !isLoopbackOrigin(origin) {
+			writeError(response, http.StatusForbidden, "cross-origin request denied")
+			return
+		}
+		response.Header().Set("Access-Control-Allow-Origin", origin)
+		response.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+		response.Header().Add("Vary", "Origin")
+	}
 	if request.Method == http.MethodOptions {
 		response.WriteHeader(http.StatusNoContent)
 		return
@@ -89,8 +108,13 @@ func (h *Handler) ServeHTTP(response http.ResponseWriter, request *http.Request)
 	}
 	results := make([]engine.Result, 0)
 	for _, provider := range selected {
+		candidates := provider.Candidates(input.Keyword, h.words)
+		if len(candidates) > h.maxCandidates {
+			writeError(response, http.StatusRequestEntityTooLarge, "candidate limit exceeded")
+			return
+		}
 		limiter := engine.NewLimiter(h.rate)
-		providerResults, scanErr := engine.Scan(request.Context(), provider, provider.Candidates(input.Keyword, h.words), h.workers, limiter)
+		providerResults, scanErr := engine.Scan(request.Context(), provider, candidates, h.workers, limiter)
 		limiter.Stop()
 		if scanErr != nil {
 			writeError(response, http.StatusRequestTimeout, scanErr.Error())
@@ -100,6 +124,26 @@ func (h *Handler) ServeHTTP(response http.ResponseWriter, request *http.Request)
 	}
 	response.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(response).Encode(results)
+}
+
+func isLoopbackHost(hostport string) bool {
+	host := hostport
+	if parsedHost, _, err := net.SplitHostPort(hostport); err == nil {
+		host = parsedHost
+	}
+	if strings.EqualFold(host, "localhost") {
+		return true
+	}
+	ip := net.ParseIP(host)
+	return ip != nil && ip.IsLoopback()
+}
+
+func isLoopbackOrigin(origin string) bool {
+	parsed, err := url.Parse(origin)
+	if err != nil || parsed.User != nil || parsed.Path != "" || parsed.RawQuery != "" || parsed.Fragment != "" {
+		return false
+	}
+	return parsed.Scheme == "http" && isLoopbackHost(parsed.Host)
 }
 
 func (h *Handler) selectProviders(names []string) ([]engine.Provider, error) {
