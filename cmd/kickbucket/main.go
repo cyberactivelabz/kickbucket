@@ -5,6 +5,7 @@ import (
 	"context"
 	_ "embed"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io"
 	"net"
@@ -20,12 +21,9 @@ import (
 	scanserver "github.com/cyberactivelabz/kickbucket/internal/server"
 )
 
-// embeddedDefaultWordlist keeps the default scan independent of the caller's working directory.
-//
 //go:embed wordlists/default.txt
 var embeddedDefaultWordlist string
 
-// Set at build time by GoReleaser (see .goreleaser.yaml).
 var (
 	version = "dev"
 	commit  = "none"
@@ -41,14 +39,14 @@ func main() {
 		printUsage(os.Stdout)
 		return
 	}
-	if len(os.Args) < 2 || os.Args[1] != "scan" {
-		if len(os.Args) > 1 && os.Args[1] == "serve" {
-			if err := runServe(os.Args[2:]); err != nil {
-				fmt.Fprintln(os.Stderr, "kickbucket:", err)
-				os.Exit(2)
-			}
-			return
+	if len(os.Args) > 1 && os.Args[1] == "serve" {
+		if err := runServe(os.Args[2:]); err != nil {
+			fmt.Fprintln(os.Stderr, "kickbucket:", err)
+			os.Exit(2)
 		}
+		return
+	}
+	if len(os.Args) < 2 || os.Args[1] != "scan" {
 		printUsage(os.Stderr)
 		os.Exit(2)
 	}
@@ -165,7 +163,6 @@ func runScan(args []string) error {
 	if err != nil {
 		return err
 	}
-
 	words, err := readWordlist(options.wordlistPath)
 	if err != nil {
 		return err
@@ -174,7 +171,6 @@ func runScan(args []string) error {
 	for _, name := range options.providers {
 		wanted[name] = true
 	}
-
 	fmt.Fprintln(os.Stderr, "Only scan cloud storage you own or are explicitly authorized to test.")
 	all := providers.NewRegistry(providers.Config{ObjectPath: options.objectPath})
 	results := make([]engine.Result, 0)
@@ -213,41 +209,46 @@ type scanOptions struct {
 }
 
 func parseScanArgs(args []string) (scanOptions, error) {
-	if len(args) == 0 || strings.HasPrefix(args[0], "-") {
-		return scanOptions{}, fmt.Errorf("keyword is required")
-	}
-	options := scanOptions{keyword: args[0], providers: []string{"s3", "gcs", "azure"}}
-	providerList := ""
-	for i := 1; i < len(args); i++ {
-		switch args[i] {
-		case "--json":
-			options.json = true
+	flagArgs := make([]string, 0, len(args))
+	positionals := make([]string, 0, 1)
+	for i := 0; i < len(args); i++ {
+		argument := args[i]
+		switch argument {
 		case "--wordlist", "--providers", "--object-path":
 			if i+1 >= len(args) {
-				return scanOptions{}, fmt.Errorf("%s requires a value", args[i])
+				return scanOptions{}, fmt.Errorf("%s requires a value", argument)
 			}
+			flagArgs = append(flagArgs, argument, args[i+1])
 			i++
-			switch args[i-1] {
-			case "--wordlist":
-				options.wordlistPath = args[i]
-			case "--providers":
-				providerList = args[i]
-			case "--object-path":
-				options.objectPath = args[i]
-			}
+		case "--json":
+			flagArgs = append(flagArgs, argument)
 		default:
-			return scanOptions{}, fmt.Errorf("unknown flag %q", args[i])
+			if strings.HasPrefix(argument, "-") {
+				flagArgs = append(flagArgs, argument)
+			} else {
+				positionals = append(positionals, argument)
+			}
 		}
 	}
-	if providerList != "" {
-		options.providers = nil
-		for _, name := range strings.Split(providerList, ",") {
-			name = strings.ToLower(strings.TrimSpace(name))
-			if name != "s3" && name != "gcs" && name != "azure" {
-				return scanOptions{}, fmt.Errorf("unknown provider %q", name)
-			}
-			options.providers = append(options.providers, name)
+	if len(positionals) != 1 {
+		return scanOptions{}, fmt.Errorf("exactly one keyword is required")
+	}
+	flags := flag.NewFlagSet("scan", flag.ContinueOnError)
+	flags.SetOutput(io.Discard)
+	wordlistPath := flags.String("wordlist", "", "wordlist file")
+	providerList := flags.String("providers", "s3,gcs,azure", "comma-separated providers")
+	objectPath := flags.String("object-path", "", "object path")
+	jsonOutput := flags.Bool("json", false, "emit JSON")
+	if err := flags.Parse(append(flagArgs, positionals[0])); err != nil {
+		return scanOptions{}, err
+	}
+	options := scanOptions{keyword: positionals[0], wordlistPath: *wordlistPath, objectPath: *objectPath, json: *jsonOutput}
+	for _, name := range strings.Split(*providerList, ",") {
+		name = strings.ToLower(strings.TrimSpace(name))
+		if name != "s3" && name != "gcs" && name != "azure" {
+			return scanOptions{}, fmt.Errorf("unknown provider %q", name)
 		}
+		options.providers = append(options.providers, name)
 	}
 	return options, nil
 }

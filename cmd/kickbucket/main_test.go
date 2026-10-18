@@ -26,6 +26,16 @@ func TestParseScanArgsFlags(t *testing.T) {
 	}
 }
 
+func TestParseScanArgsFlagsBeforeKeyword(t *testing.T) {
+	got, err := parseScanArgs([]string{"--json", "--providers", "gcs", "acme"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got.keyword != "acme" || !got.json || !reflect.DeepEqual(got.providers, []string{"gcs"}) {
+		t.Fatalf("parseScanArgs() = %#v", got)
+	}
+}
+
 func TestParseScanArgsRejectsInvalidInput(t *testing.T) {
 	for _, args := range [][]string{{}, {"acme", "--providers"}, {"acme", "--providers", "digitalocean"}, {"acme", "--wat"}} {
 		if _, err := parseScanArgs(args); err == nil {
