@@ -76,6 +76,9 @@ func (p *Provider) Check(ctx context.Context, bucket string) (engine.Access, err
 }
 
 func (p *Provider) bucketURL(bucket, suffix string) string {
+	if suffix != "" && !strings.HasPrefix(suffix, "/") && !strings.HasPrefix(suffix, "?") {
+		suffix = "/" + suffix
+	}
 	if p.endpoint != "" {
 		return p.endpoint + "/" + url.PathEscape(bucket) + suffix
 	}

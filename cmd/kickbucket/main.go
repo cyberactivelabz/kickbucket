@@ -58,6 +58,7 @@ func printUsage(output *os.File) {
 	fmt.Fprintln(output, "\nFlags:")
 	fmt.Fprintln(output, "  --wordlist <path>       wordlist file (default: wordlists/default.txt)")
 	fmt.Fprintln(output, "  --providers <list>      comma-separated providers: s3,gcs,azure (default: all)")
+	fmt.Fprintln(output, "  --object-path <path>    object path to probe for public read")
 	fmt.Fprintln(output, "  --json                  emit JSON results")
 	fmt.Fprintln(output, "  --addr <address>        serve API address (default: 127.0.0.1:8080)")
 }
@@ -65,6 +66,7 @@ func printUsage(output *os.File) {
 type serveOptions struct {
 	address      string
 	wordlistPath string
+	objectPath   string
 }
 
 func runServe(args []string) error {
@@ -83,7 +85,7 @@ func runServe(args []string) error {
 	if err != nil {
 		return err
 	}
-	handler := scanserver.NewHandler(scanserver.Config{Providers: providers.NewRegistry(providers.Config{}), Words: words})
+	handler := scanserver.NewHandler(scanserver.Config{Providers: providers.NewRegistry(providers.Config{ObjectPath: options.objectPath}), Words: words})
 	server := &http.Server{Addr: options.address, Handler: handler}
 	fmt.Fprintf(os.Stderr, "kickbucket API listening on http://%s\n", options.address)
 	shutdown, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
@@ -131,6 +133,12 @@ func parseServeArgs(args []string) (serveOptions, error) {
 			}
 			i++
 			options.wordlistPath = args[i]
+		case "--object-path":
+			if i+1 >= len(args) {
+				return serveOptions{}, fmt.Errorf("--object-path requires a value")
+			}
+			i++
+			options.objectPath = args[i]
 		case "--help", "-h":
 			printUsage(os.Stdout)
 			return options, nil
@@ -161,7 +169,7 @@ func runScan(args []string) error {
 	}
 
 	fmt.Fprintln(os.Stderr, "Only scan cloud storage you own or are explicitly authorized to test.")
-	all := providers.NewRegistry(providers.Config{})
+	all := providers.NewRegistry(providers.Config{ObjectPath: options.objectPath})
 	results := make([]engine.Result, 0)
 	for _, provider := range all {
 		if !wanted[provider.Name()] {
@@ -193,6 +201,7 @@ type scanOptions struct {
 	keyword      string
 	wordlistPath string
 	providers    []string
+	objectPath   string
 	json         bool
 }
 
@@ -206,15 +215,18 @@ func parseScanArgs(args []string) (scanOptions, error) {
 		switch args[i] {
 		case "--json":
 			options.json = true
-		case "--wordlist", "--providers":
+		case "--wordlist", "--providers", "--object-path":
 			if i+1 >= len(args) {
 				return scanOptions{}, fmt.Errorf("%s requires a value", args[i])
 			}
 			i++
-			if args[i-1] == "--wordlist" {
+			switch args[i-1] {
+			case "--wordlist":
 				options.wordlistPath = args[i]
-			} else {
+			case "--providers":
 				providerList = args[i]
+			case "--object-path":
+				options.objectPath = args[i]
 			}
 		default:
 			return scanOptions{}, fmt.Errorf("unknown flag %q", args[i])
