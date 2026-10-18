@@ -98,6 +98,30 @@ func TestRejectsNonLoopbackHost(t *testing.T) {
 	}
 }
 
+func TestHostPolicyAcceptsOnlyExactLoopbackNames(t *testing.T) {
+	for _, host := range []string{"localhost", "localhost:8080", "127.0.0.1", "127.0.0.1:8080", "[::1]:8080"} {
+		if !isLoopbackHost(host) {
+			t.Errorf("isLoopbackHost(%q) = false, want true", host)
+		}
+	}
+	for _, host := range []string{"localhost.evil.example", "localhost.evil.example:8080", "127.0.0.1.evil.example:8080", "0.0.0.0:8080"} {
+		if isLoopbackHost(host) {
+			t.Errorf("isLoopbackHost(%q) = true, want false", host)
+		}
+	}
+}
+
+func TestRejectsDNSRebindingHost(t *testing.T) {
+	handler := NewHandler(Config{})
+	request := httptest.NewRequest(http.MethodGet, "/healthz", nil)
+	request.Host = "localhost.attacker.example:8080"
+	recorder := httptest.NewRecorder()
+	handler.ServeHTTP(recorder, request)
+	if recorder.Code != http.StatusForbidden {
+		t.Fatalf("status = %d, want 403", recorder.Code)
+	}
+}
+
 func TestRejectsCrossOriginRequest(t *testing.T) {
 	handler := NewHandler(Config{})
 	request := localRequest(http.MethodGet, "/healthz", "")
