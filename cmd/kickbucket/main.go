@@ -3,8 +3,10 @@ package main
 import (
 	"bufio"
 	"context"
+	_ "embed"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net"
 	"net/http"
 	"os"
@@ -17,6 +19,11 @@ import (
 	"github.com/cyberactivelabz/kickbucket/internal/engine/providers"
 	scanserver "github.com/cyberactivelabz/kickbucket/internal/server"
 )
+
+// embeddedDefaultWordlist keeps the default scan independent of the caller's working directory.
+//
+//go:embed wordlists/default.txt
+var embeddedDefaultWordlist string
 
 // Set at build time by GoReleaser (see .goreleaser.yaml).
 var (
@@ -118,7 +125,7 @@ func validateServeAddress(address string) error {
 }
 
 func parseServeArgs(args []string) (serveOptions, error) {
-	options := serveOptions{address: "127.0.0.1:8080", wordlistPath: "wordlists/default.txt"}
+	options := serveOptions{address: "127.0.0.1:8080"}
 	for i := 0; i < len(args); i++ {
 		switch args[i] {
 		case "--addr":
@@ -209,7 +216,7 @@ func parseScanArgs(args []string) (scanOptions, error) {
 	if len(args) == 0 || strings.HasPrefix(args[0], "-") {
 		return scanOptions{}, fmt.Errorf("keyword is required")
 	}
-	options := scanOptions{keyword: args[0], wordlistPath: "wordlists/default.txt", providers: []string{"s3", "gcs", "azure"}}
+	options := scanOptions{keyword: args[0], providers: []string{"s3", "gcs", "azure"}}
 	providerList := ""
 	for i := 1; i < len(args); i++ {
 		switch args[i] {
@@ -246,13 +253,20 @@ func parseScanArgs(args []string) (scanOptions, error) {
 }
 
 func readWordlist(path string) ([]string, error) {
+	if path == "" {
+		return parseWordlist(strings.NewReader(embeddedDefaultWordlist))
+	}
 	file, err := os.Open(path)
 	if err != nil {
 		return nil, fmt.Errorf("read wordlist: %w", err)
 	}
 	defer file.Close()
+	return parseWordlist(file)
+}
+
+func parseWordlist(input io.Reader) ([]string, error) {
 	var words []string
-	scanner := bufio.NewScanner(file)
+	scanner := bufio.NewScanner(input)
 	for scanner.Scan() {
 		word := strings.TrimSpace(scanner.Text())
 		if word != "" && !strings.HasPrefix(word, "#") {

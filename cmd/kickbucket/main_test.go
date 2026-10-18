@@ -10,7 +10,7 @@ func TestParseScanArgsDefaults(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	want := scanOptions{keyword: "acme", wordlistPath: "wordlists/default.txt", providers: []string{"s3", "gcs", "azure"}}
+	want := scanOptions{keyword: "acme", providers: []string{"s3", "gcs", "azure"}}
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("parseScanArgs() = %#v, want %#v", got, want)
 	}
