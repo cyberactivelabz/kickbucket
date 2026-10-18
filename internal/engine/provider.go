@@ -1,7 +1,11 @@
 // Package engine holds the scan engine and the provider interface.
 package engine
 
-import "context"
+import (
+	"context"
+	"encoding/json"
+	"fmt"
+)
 
 // Access describes how exposed a bucket is.
 type Access int
@@ -26,11 +30,36 @@ func (a Access) String() string {
 	}
 }
 
+func (a Access) MarshalJSON() ([]byte, error) {
+	return json.Marshal(a.String())
+}
+
+func (a *Access) UnmarshalJSON(data []byte) error {
+	var value string
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	switch value {
+	case "unknown":
+		*a = AccessUnknown
+	case "private":
+		*a = AccessPrivate
+	case "listable":
+		*a = AccessListable
+	case "public read":
+		*a = AccessPublicRead
+	default:
+		return fmt.Errorf("unknown access level %q", value)
+	}
+	return nil
+}
+
 // Result is one bucket found by a scan.
 type Result struct {
-	Provider string
-	Name     string
-	Access   Access
+	Provider string `json:"provider"`
+	Name     string `json:"name"`
+	Access   Access `json:"access"`
+	Error    string `json:"error,omitempty"`
 }
 
 // Provider is implemented once per cloud storage service.
