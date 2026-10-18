@@ -5,6 +5,7 @@ import (
 	"context"
 	_ "embed"
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
 	"io"
@@ -174,20 +175,30 @@ func runScan(args []string) error {
 	fmt.Fprintln(os.Stderr, "Only scan cloud storage you own or are explicitly authorized to test.")
 	all := providers.NewRegistry(providers.Config{ObjectPath: options.objectPath})
 	results := make([]engine.Result, 0)
+	scanContext, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+	var scanErr error
 	for _, provider := range all {
 		if !wanted[provider.Name()] {
 			continue
 		}
 		limiter := engine.NewLimiter(10)
-		providerResults, scanErr := engine.Scan(context.Background(), provider, provider.Candidates(options.keyword, words), 8, limiter)
+		providerResults, providerErr := engine.Scan(scanContext, provider, provider.Candidates(options.keyword, words), 8, limiter)
 		limiter.Stop()
-		if scanErr != nil {
-			return scanErr
-		}
 		results = append(results, providerResults...)
+		if providerErr != nil {
+			scanErr = providerErr
+			break
+		}
 	}
 	if options.json {
-		return json.NewEncoder(os.Stdout).Encode(results)
+		if err := json.NewEncoder(os.Stdout).Encode(results); err != nil {
+			return err
+		}
+		if scanErr != nil && !errors.Is(scanErr, context.Canceled) {
+			return scanErr
+		}
+		return nil
 	}
 	for _, result := range results {
 		status := strings.ToUpper(result.Access.String())
@@ -197,6 +208,9 @@ func runScan(args []string) error {
 		fmt.Printf("%-5s %-30s %s\n", result.Provider, result.Name, status)
 	}
 	fmt.Printf("%d buckets found, %d exposed\n", len(results), countExposed(results))
+	if scanErr != nil && !errors.Is(scanErr, context.Canceled) {
+		return scanErr
+	}
 	return nil
 }
 
