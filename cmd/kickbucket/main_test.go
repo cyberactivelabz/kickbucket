@@ -3,6 +3,8 @@ package main
 import (
 	"reflect"
 	"testing"
+
+	"github.com/cyberactivelabz/kickbucket/internal/engine"
 )
 
 func TestParseScanArgsDefaults(t *testing.T) {
@@ -65,5 +67,12 @@ func TestValidateServeAddress(t *testing.T) {
 		if err := validateServeAddress(address); err == nil {
 			t.Errorf("validateServeAddress(%q) returned nil", address)
 		}
+	}
+}
+
+func TestCountFoundExcludesErrorRows(t *testing.T) {
+	results := []engine.Result{{Name: "private"}, {Name: "missing", Error: "not found"}, {Name: "listable"}}
+	if got := countFound(results); got != 2 {
+		t.Fatalf("countFound() = %d, want 2", got)
 	}
 }

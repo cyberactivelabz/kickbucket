@@ -207,7 +207,7 @@ func runScan(args []string) error {
 		}
 		fmt.Printf("%-5s %-30s %s\n", result.Provider, result.Name, status)
 	}
-	fmt.Printf("%d buckets found, %d exposed\n", len(results), countExposed(results))
+	fmt.Printf("%d buckets found, %d exposed\n", countFound(results), countExposed(results))
 	if scanErr != nil && !errors.Is(scanErr, context.Canceled) {
 		return scanErr
 	}
@@ -298,6 +298,16 @@ func countExposed(results []engine.Result) int {
 	count := 0
 	for _, result := range results {
 		if result.Access == engine.AccessListable || result.Access == engine.AccessPublicRead {
+			count++
+		}
+	}
+	return count
+}
+
+func countFound(results []engine.Result) int {
+	count := 0
+	for _, result := range results {
+		if result.Error == "" {
 			count++
 		}
 	}
