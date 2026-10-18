@@ -2,3 +2,5 @@ node_modules/
 .next/
 docs/.vitepress/dist/
 docs/.vitepress/cache/
+demo.cast
+demo.cast

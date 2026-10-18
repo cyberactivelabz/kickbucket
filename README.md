@@ -19,6 +19,8 @@
   <a href="https://github.com/cyberactivelabz/kickbucket/discussions">Discussions</a>
 </p>
 
+![Kickbucket scanning an S3 bucket](docs/public/demo.svg)
+
 ---
 
 > **Status: early development.** The engine and the S3, GCS and Azure providers are being built toward v0.1. Interfaces may change until v1.0. Watch or star the repo to follow along.
