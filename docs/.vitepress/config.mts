@@ -21,6 +21,15 @@ export default defineConfig({
           { text: 'Desktop app', link: '/desktop' },
         ],
       },
+      {
+        text: 'Providers',
+        link: '/providers/',
+        items: [
+          { text: 'Amazon S3', link: '/providers/s3' },
+          { text: 'Google Cloud Storage', link: '/providers/gcs' },
+          { text: 'Azure Blob Storage', link: '/providers/azure' },
+        ],
+      },
       { text: 'Go library', link: '/api' },
       { text: 'Wordlists', link: '/wordlists' },
       { text: 'Contributing', link: '/contributing' },
